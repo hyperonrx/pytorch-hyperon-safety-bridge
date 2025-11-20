@@ -1,0 +1,11 @@
+torch
+numpy
+pandas
+lightning
+pytorch-forecasting
+simglucose
+scikit-learn
+tqdm
+matplotlib
+optuna
+hyperon>=0.1.6  # The OpenCog Hyperon (MeTTa) Interpreter
