@@ -1,10 +1,10 @@
-# NeuroIslet: A Neuro-Symbolic Artificial Pancreas 🧠+💉
+# GlucoVision: A Neuro-Symbolic Artificial Pancreas 🧠+💉
 
-**NeuroIslet** is a demonstration of **Cognitive Synergy** applied to life-critical medical control. It combines the intuitive forecasting power of Deep Learning with the verifiable safety of Symbolic Logic.
+**GlucoVision** is a demonstration of **Cognitive Synergy** applied to life-critical medical control. It combines the intuitive forecasting power of Deep Learning with the verifiable safety of Symbolic Logic.
 
 ## 🚀 The Architecture
 
-NeuroIslet implements a **System 1 + System 2** architecture using the [OpenCog Hyperon](https://github.com/trueagi-io/hyperon-experimental) framework.
+**GlucoVision** implements a **System 1 + System 2** architecture using the [OpenCog Hyperon](https://github.com/trueagi-io/hyperon-experimental) framework.
 
 ### 1. System 1: The Intuition (PyTorch)
 * **Model:** Temporal Fusion Transformer (TFT).
@@ -47,4 +47,5 @@ This project runs inside the standard Hyperon Alpha container.
 docker pull trueagi/hyperon:latest
 
 # 2. Run the agent
+# Note: Ensure your script is named correctly (default: pancreas_hyperon.py)
 docker run -it -v ${PWD}:/app -w /app trueagi/hyperon:latest python pancreas_hyperon.py
