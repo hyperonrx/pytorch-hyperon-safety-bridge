@@ -1,81 +1,50 @@
-# PyTorch-Hyperon Safety Bridge 🌉
-# A Neuro-Symbolic Integration Framework for Safe AI Control Systems
+# NeuroIslet: A Neuro-Symbolic Artificial Pancreas 🧠+💉
 
-## 📖 Overview
+**NeuroIslet** is a demonstration of **Cognitive Synergy** applied to life-critical medical control. It combines the intuitive forecasting power of Deep Learning with the verifiable safety of Symbolic Logic.
 
-**PyTorch-Hyperon Safety Bridge** is a containerized framework that solves the "Black Box" problem in Deep Reinforcement Learning (DRL). It establishes a bidirectional communication channel between **PyTorch** (Deep Learning/Intuition) and **OpenCog Hyperon** (Symbolic Logic/Reasoning).
+## 🚀 The Architecture
 
-This repository contains a reference implementation called **"GlucoVision"**: an Artificial Pancreas control system. It demonstrates how a Symbolic "Guardian Layer" (written in **MeTTa**) can audit, constrain, and veto the actions of a Neural Network agent in a life-critical medical environment.
+NeuroIslet implements a **System 1 + System 2** architecture using the [OpenCog Hyperon](https://github.com/trueagi-io/hyperon-experimental) framework.
 
-## 🧠 The "Cognitive Synergy" Architecture
+### 1. System 1: The Intuition (PyTorch)
+* **Model:** Temporal Fusion Transformer (TFT).
+* **Role:** Forecasts future glucose trajectories based on continuous sensor data (CGM, Insulin, Carbs).
+* **Output:** Probabilistic forecasts with uncertainty quantiles.
 
-This project implements Ben Goertzel's vision of **Cognitive Synergy** by combining two distinct systems:
+### 2. The Bridge: Quantile Symbol Grounding
+* **The Innovation:** We do not attempt to ground every raw data point. Instead, we extract **Semantic Features** from the neural output:
+    1.  **Immediate Uncertainty** (q90-q10 width at 30min).
+    2.  **Strategic Uncertainty** (q90-q10 width at 60min).
+    3.  **Projected Velocity** (Slope of q50).
+* These features are converted into **MeTTa Atoms** in real-time.
 
-1.  **System 1 (Neural Intuition):**
-    *   **Engine:** PyTorch (Temporal Fusion Transformer + PPO Agent).
-    *   **Role:** Analyzes complex time-series glucose data to predict trends and propose insulin dosages.
-    *   **Weakness:** Prone to "hallucinations" (confident but wrong actions) in high-noise scenarios.
+### 3. System 2: The Guardian (Hyperon)
+* **Language:** MeTTa (Meta Type Talk).
+* **Role:** Executes deterministic safety rules against the grounded atoms.
+* **Capability:** It can **VETO** neural actions if they violate safety axioms, regardless of the neural network's confidence.
 
-2.  **System 2 (Symbolic Reasoning):**
-    *   **Engine:** OpenCog Hyperon (MeTTa).
-    *   **Role:** Acts as an immutable **Safety Constitution**. It validates every proposed action against physiological rules and uncertainty thresholds.
-    *   **Strength:** Transparent, logical, and auditable.
+## 🧪 Verification: The "Pizza Stress Test"
 
-## 🛡️ The "Bridge" Mechanics
+To validate the architecture, we perform a "Man-in-the-Middle" injection of noise into the simulation.
 
-The core innovation is the Dockerized runtime that allows Python Tensors to trigger MeTTa atoms.
-
-1.  **Inference:** The RL Agent proposes an Action (e.g., `Bolus 2.0U`) and calculates an **Uncertainty Score**.
-2.  **Injection:** The Bridge constructs a dynamic MeTTa expression:
+* **Scenario:** A "Ghost Meal" creates a glucose spike invisible to the neural net's history.
+* **Neural Response:** The TFT becomes confused (High Variance) and attempts a reactive "Panic Bolus."
+* **Symbolic Response:** The Hyperon layer detects `(State (Uncertainty High))` and executes:
     ```lisp
-    !(evaluate-safety <Action_ID> <Glucose_Value> <IOB_Value> <Uncertainty_Score>)
+    (= (safety-check $uncertainty)
+       (if (> $uncertainty 50)
+           (Block-Action "Neural Confidence Too Low")
+           (Allow-Action)))
     ```
-3.  **Reasoning:** The Hyperon AtomSpace evaluates this against `safety_logic.metta`.
-4.  **Verdict:** If the Neural Net is confused (High Uncertainty) or violates safety rules (Low Glucose), Hyperon returns a **Modified Action**.
+* **Result:** The dangerous action is blocked, preventing potential hypoglycemia.
 
-## ⚠️ Important: Data & Artifacts
+## 🛠️ Usage (Docker)
 
-**Note regarding Repository Size:**
-To maintain a clean and lightweight repository, the massive datasets and pre-trained model checkpoints are **not included** in this Git repo.
+This project runs inside the standard Hyperon Alpha container.
 
-*   **Missing Data:** The `subjects/` and `ohio_demo/` folders (patient data) are excluded.
-*   **Missing Model:** The pre-trained `tft_forecasting_model.ckpt` (100MB+) is excluded.
-
-**How to Run:**
-The code includes a **Fallback Mode**. If the external data or models are missing, the system will:
-1.  Use the default Simglucose virtual patient generator.
-2.  Run the Symbolic Bridge logic without the TFT forecasting signal (relying on hard logic constraints).
-
-*To reproduce the full experiment with specific patient data, please mount your local data folders to the Docker container at runtime.*
-
-## 🚀 Installation & Usage
-
-This project is fully Dockerized to resolve the complex dependency chains required to run Rust-based Hyperon alongside PyTorch on non-Linux systems.
-
-### 1. Prerequisites
-*   Docker Desktop
-
-### 2. Build the Brain
 ```bash
-docker build -t hyperon-pancreas .
-3. Run the Simulation
-code
-Bash
-docker run -v %cd%/artifacts_optimization_run:/app/artifacts_optimization_run hyperon-pancreas
+# 1. Pull the image
+docker pull trueagi/hyperon:latest
 
-📊 Validation: The "Stress Test"
-To validate the bridge, we performed a "Man-in-the-Middle" Stress Test at Step 15 of the simulation:
-Injection: We forced the Neural Network to hallucinate a dangerous overdose (Large Bolus) and artificially injected a high Uncertainty signal (100.0).
-Response: The Hyperon Guardian successfully detected the high uncertainty.
-
-Log Output:
-[MeTTa] UNCERTAINTY: Neural confidence low. Aggressive bolus reduced.
-Result: The dangerous action was blocked and replaced with a safe fallback action.
-
-🔮 Roadmap
-This project acts as the Alpha Prototype for a larger initiative proposed for SingularityNET Deep Funding:
-Phase 1 (Complete): Static Logic Bridge (Hard-coded rules).
-Phase 2: Dynamic Knowledge Graph – Using patient context to rewrite safety rules in real-time.
-Phase 3: Inductive Logic Programming – Enabling the MeTTa layer to learn new rules from "near-miss" events.
-
-Author: Benjamin Nancarrow
+# 2. Run the agent
+docker run -it -v ${PWD}:/app -w /app trueagi/hyperon:latest python pancreas_hyperon.py
